@@ -39,8 +39,7 @@ namespace KoronaBot.TelegramBot
             var me = await _bot.GetMeAsync();
             Console.Title = me.Username;
 
-            _dailyScheduler = new CronlikeTimer("* * * * *", () => SendDailyNotification().Start());
-            //            _dailyScheduler = new CronlikeTimer("0 19 * * *", () => SendDailyNotification().Start());
+            _dailyScheduler = new CronlikeTimer("0 19 * * *", () => SendDailyNotification().Start());
 
             _dailyScheduler.Start();
 
