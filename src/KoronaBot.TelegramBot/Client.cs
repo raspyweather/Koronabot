@@ -89,7 +89,6 @@ namespace KoronaBot.TelegramBot
                 // starts county selection
                 case "/start":
                     {
-                        await _bot.SendTextMessageAsync(message.Chat, "😎");
                         await Usage(message);
                         await ShowCountySelection(message);
                         break;
@@ -155,7 +154,15 @@ namespace KoronaBot.TelegramBot
             {
                 var userId = message.Chat.Id.ToString();
                 var user = await this._userRepository.GetUser(userId);
-                await NotifyUser(user);
+                if (user == default || string.IsNullOrWhiteSpace(user.CountyId))
+                {
+                    await _bot.SendTextMessageAsync(message.Chat.Id, "Please select your county");
+                    await ShowCountySelection(message);
+                }
+                else
+                {
+                    await NotifyUser(user);
+                }
             }
             catch (Exception e)
             {
@@ -171,8 +178,8 @@ namespace KoronaBot.TelegramBot
 
                 string file = System.IO.Path.Combine("Assets",
                     !caseData.HasValue ?
-                        "error.jpg" :
-                        $"{Math.Max(0, Math.Min(400, caseData.Value - 12.5 + (400 - caseData.Value + 12.5) % 25))}.jpg");
+                        "error.JPG" :
+                        $"{Math.Max(0, Math.Min(400, caseData.Value - 12.5 + (400 - caseData.Value + 12.5) % 25))}.JPG");
 
                 var stream = new System.IO.FileStream(file, System.IO.FileMode.Open, System.IO.FileAccess.Read);
                 await this._bot.SendPhotoAsync(user.UserId,

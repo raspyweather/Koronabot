@@ -46,7 +46,7 @@ namespace KoronaBot.TelegramBot
         private static void ConfigureAppConfiguration(HostBuilderContext ctx, IConfigurationBuilder configBuilder)
         {
             configBuilder
-                .AddJsonFile("Configuration/appSettings.json", optional: false)
+                .AddJsonFile("Configuration/appSettings.json", optional: true)
                 .AddEnvironmentVariables()
                 .Build();
         }

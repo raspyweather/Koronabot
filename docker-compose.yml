@@ -1,0 +1,10 @@
+version: "3.7"
+services:
+  bot:
+    image: korona-telegram-bot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+        - "BotToken=AAAAAA"
+    restart: unless-stopped
