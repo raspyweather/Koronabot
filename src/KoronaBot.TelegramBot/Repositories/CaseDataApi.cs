@@ -10,7 +10,7 @@ namespace KoronaBot.TelegramBot.Repositories
         public async Task<CountyEntry[]> GetEntries()
         {
             var service = RestService.For<ICaseDataApi>("https://opendata.wuerzburg.de");
-            return (await service.GetAll()).Entries.Select(y=>y.Data).ToArray();
+            return (await service.GetAll()).Entries.Select(y => y.Data).ToArray();
         }
     }
 

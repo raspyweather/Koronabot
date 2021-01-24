@@ -9,6 +9,7 @@ namespace KoronaBot.TelegramBot.Repositories
         private bool hasData = false;
         private List<string> _counties = new List<string>();
         private Dictionary<string, double?> _caseData = new Dictionary<string, double?>();
+
         public async Task Fetch()
         {
             var caseApi = new CaseDataApi();
@@ -17,8 +18,6 @@ namespace KoronaBot.TelegramBot.Repositories
             this._caseData = new Dictionary<string, double?>();
             entries.ToList().ForEach(x => this._caseData[x.CountyName] = x.CasesPer100k);
             this.hasData = true;
-            // update counties
-            // 
         }
 
         public async Task<string[]> FindCounties(string search)
