@@ -65,6 +65,7 @@ namespace KoronaBot.TelegramBot
         {
             try
             {
+                await this._caseRepository.Fetch();
                 foreach (var user in await this._userRepository.GetUsers())
                 {
                     await NotifyUser(user);
@@ -84,15 +85,21 @@ namespace KoronaBot.TelegramBot
             if (message == null || message.Type != MessageType.Text)
                 return;
 
-            switch (GetMessageCommand(message.Text))
+            var messageData = ParseMessageCommand(message.Text);
+            switch (messageData.command)
             {
                 // starts county selection
                 case "/start":
+                    await Usage(message);
+                    await ShowCountySelection(message);
+                    break;
+                case "/stop":
+                    var user = await _userRepository.GetUser(message.Chat.Id.ToString());
+                    if (user != null)
                     {
-                        await Usage(message);
-                        await ShowCountySelection(message);
-                        break;
+                        await _userRepository.DeleteUser(user);
                     }
+                    break;
                 case "/county":
                     await ShowCountySelection(message);
                     break;
@@ -137,13 +144,13 @@ namespace KoronaBot.TelegramBot
                     CountyId = counties.First(),
                     UserId = message.Chat.Id.ToString()
                 });
-                await this._bot.SendTextMessageAsync(message.Chat, $"{counties.First().ToString()} selected");
+                await this._bot.SendTextMessageAsync(message.Chat, $"{counties.First()} selected");
                 await this.NotifyUser(message);
                 return;
             }
             if (counties.Length > 0)
             {
-                await this._bot.SendTextMessageAsync(message.Chat, $"Please be more Found following matches: {string.Join("\n", counties)}");
+                await this._bot.SendTextMessageAsync(message.Chat, $"Please be more specific. Found following matches: {string.Join("\n", counties)}");
             }
 
         }
@@ -205,9 +212,19 @@ namespace KoronaBot.TelegramBot
             );
         }
 
-        private string GetMessageCommand(string messageString)
+        private (string command, string payload) ParseMessageCommand(string messageString)
         {
-            return messageString.Split(' ')[0].Split('@')[0];
+            var parts = messageString.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length > 1)
+            {
+                return (parts[0].Split('@')[0], string.Join(" ", parts.Skip(1)));
+            }
+            if (parts.Length == 1)
+            {
+                return (parts[0].Split('@')[0], string.Empty);
+            }
+
+            return (string.Empty, string.Empty);
         }
 
         private void BotOnReceiveError(object sender, ReceiveErrorEventArgs receiveErrorEventArgs)
